@@ -4,7 +4,7 @@ import { PrescriptionDto, PrescriptionRequest } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class PrescriptionService {
-  private readonly API = 'http://localhost:8080/api/prescriptions';
+  private readonly API = '/api/prescriptions';
 
   constructor(private http: HttpClient) {}
 

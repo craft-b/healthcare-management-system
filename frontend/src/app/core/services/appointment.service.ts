@@ -4,7 +4,7 @@ import { AppointmentDto, AppointmentRequest, AppointmentStatus } from '../models
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentService {
-  private readonly API = 'http://localhost:8080/api/appointments';
+  private readonly API = '/api/appointments';
 
   constructor(private http: HttpClient) {}
 

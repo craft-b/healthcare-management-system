@@ -4,7 +4,7 @@ import { InvoiceDto, InvoiceRequest } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
-  private readonly API = 'http://localhost:8080/api/invoices';
+  private readonly API = '/api/invoices';
 
   constructor(private http: HttpClient) {}
 
