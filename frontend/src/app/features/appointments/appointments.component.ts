@@ -12,99 +12,87 @@ import { AppointmentDto, AppointmentStatus, Provider } from '../../core/models';
   imports: [ReactiveFormsModule, DatePipe],
   template: `
     <div class="page-container">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2"></i>Appointments</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+        <div>
+          <h3 style="margin-bottom:.2rem">Appointments</h3>
+          <p style="color:var(--muted);margin:0;font-size:.875rem">{{ appointments.length }} total appointment(s)</p>
+        </div>
         @if (auth.role === 'PATIENT') {
           <button class="btn btn-primary" (click)="showForm = !showForm">
-            <i class="bi bi-plus-lg me-1"></i>Schedule Appointment
+            <i class="bi bi-plus-lg"></i>Schedule Appointment
           </button>
         }
       </div>
 
-      <!-- Schedule Form (Patient only) -->
       @if (showForm && auth.role === 'PATIENT') {
         <div class="card mb-4">
-          <div class="card-header py-3">Schedule New Appointment</div>
+          <div class="card-header"><i class="bi bi-calendar-plus"></i>Schedule New Appointment</div>
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="submitAppointment()">
-              <div class="row g-3">
-                <div class="col-md-5">
+              <div class="form-row cols-3">
+                <div>
                   <label class="form-label">Healthcare Provider</label>
                   <select class="form-select" formControlName="providerId">
-                    <option value="">Select provider</option>
-                    @for (p of providers; track p.id) {
-                      <option [value]="p.id">{{ p.fullName }}</option>
-                    }
+                    <option value="">Select a provider</option>
+                    @for (p of providers; track p.id) { <option [value]="p.id">{{ p.fullName }}</option> }
                   </select>
-                  @if (form.get('providerId')?.touched && form.get('providerId')?.invalid) {
-                    <div class="text-danger small mt-1">Please select a provider.</div>
-                  }
+                  @if (form.get('providerId')?.touched && form.get('providerId')?.invalid) { <span class="field-error">Please select a provider.</span> }
                 </div>
-                <div class="col-md-4">
+                <div>
                   <label class="form-label">Date & Time</label>
                   <input type="datetime-local" class="form-control" formControlName="appointmentTime" />
-                  @if (form.get('appointmentTime')?.touched && form.get('appointmentTime')?.invalid) {
-                    <div class="text-danger small mt-1">Please select a date and time.</div>
-                  }
+                  @if (form.get('appointmentTime')?.touched && form.get('appointmentTime')?.invalid) { <span class="field-error">Please select a date and time.</span> }
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Notes <span class="text-muted">(optional)</span></label>
-                  <input type="text" class="form-control" formControlName="notes" placeholder="Reason for visit" />
+                <div>
+                  <label class="form-label">Reason for visit <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+                  <input type="text" class="form-control" formControlName="notes" placeholder="e.g. Annual checkup" />
                 </div>
               </div>
-              @if (formError) {
-                <div class="alert alert-danger mt-3 py-2">{{ formError }}</div>
-              }
-              <div class="mt-3">
-                <button type="submit" class="btn btn-success me-2" [disabled]="submitting">
-                  @if (submitting) { <span class="spinner-border spinner-border-sm me-2"></span> }
-                  Confirm Appointment
+              @if (formError) { <div class="alert alert-danger mt-2"><i class="bi bi-exclamation-circle-fill"></i>{{ formError }}</div> }
+              <div style="margin-top:1rem;display:flex;gap:.75rem">
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  @if (submitting) { <span class="spinner" style="width:16px;height:16px;border-width:2px"></span> }
+                  <i class="bi bi-check-lg"></i>Confirm Appointment
                 </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="showForm = false">Cancel</button>
+                <button type="button" class="btn btn-ghost" (click)="showForm = false">Cancel</button>
               </div>
             </form>
           </div>
         </div>
       }
 
-      <!-- Appointments List -->
       @if (loading) {
-        <div class="spinner-center"><div class="spinner-border text-primary"></div></div>
+        <div class="spinner-center"><div class="spinner"></div></div>
       } @else if (appointments.length === 0) {
-        <div class="card text-center py-5">
-          <i class="bi bi-calendar-x text-muted" style="font-size:3rem"></i>
-          <p class="text-muted mt-2">No appointments found.</p>
-        </div>
+        <div class="card"><div class="empty-state"><i class="bi bi-calendar-x"></i><p>No appointments found.</p></div></div>
       } @else {
         <div class="card">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+            <table class="table">
+              <thead>
                 <tr>
                   @if (auth.role !== 'PATIENT') { <th>Patient</th> }
-                  <th>Provider</th>
-                  <th>Date & Time</th>
-                  <th>Notes</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>Provider</th><th>Date & Time</th><th>Notes</th><th>Status</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 @for (apt of appointments; track apt.id) {
                   <tr>
-                    @if (auth.role !== 'PATIENT') { <td>{{ apt.patientName }}</td> }
-                    <td>{{ apt.providerName }}</td>
-                    <td>{{ apt.appointmentTime | date:'medium' }}</td>
-                    <td>{{ apt.notes || '—' }}</td>
+                    @if (auth.role !== 'PATIENT') { <td style="font-weight:600">{{ apt.patientName }}</td> }
+                    <td style="font-weight:500">{{ apt.providerName }}</td>
+                    <td style="font-size:.875rem;color:var(--muted)">{{ apt.appointmentTime | date:'EEE, MMM d · h:mm a' }}</td>
+                    <td style="font-size:.875rem;color:var(--muted)">{{ apt.notes || '—' }}</td>
                     <td><span class="badge" [class]="statusBadge(apt.status)">{{ apt.status }}</span></td>
                     <td>
-                      @if (auth.role === 'PROVIDER' && apt.status === 'PENDING') {
-                        <button class="btn btn-sm btn-success me-1" (click)="updateStatus(apt, 'CONFIRMED')">Confirm</button>
-                        <button class="btn btn-sm btn-secondary me-1" (click)="updateStatus(apt, 'COMPLETED')">Complete</button>
-                      }
-                      @if (apt.status !== 'CANCELLED' && apt.status !== 'COMPLETED') {
-                        <button class="btn btn-sm btn-outline-danger" (click)="cancel(apt)">Cancel</button>
-                      }
+                      <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                        @if (auth.role === 'PROVIDER' && apt.status === 'PENDING') {
+                          <button class="btn btn-success btn-sm" (click)="updateStatus(apt, 'CONFIRMED')"><i class="bi bi-check"></i>Confirm</button>
+                          <button class="btn btn-outline btn-sm" (click)="updateStatus(apt, 'COMPLETED')">Complete</button>
+                        }
+                        @if (apt.status !== 'CANCELLED' && apt.status !== 'COMPLETED') {
+                          <button class="btn btn-outline-danger btn-sm" (click)="cancel(apt)"><i class="bi bi-x"></i>Cancel</button>
+                        }
+                      </div>
                     </td>
                   </tr>
                 }
@@ -125,49 +113,20 @@ export class AppointmentsComponent implements OnInit {
   submitting = false;
   formError = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private appointmentService: AppointmentService,
-    private providerService: ProviderService,
-    public auth: AuthService
-  ) {}
+  constructor(private fb: FormBuilder, private appointmentService: AppointmentService, private providerService: ProviderService, public auth: AuthService) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      providerId: ['', Validators.required],
-      appointmentTime: ['', Validators.required],
-      notes: ['']
-    });
-    this.load();
-    if (this.auth.role === 'PATIENT') {
-      this.providerService.getAll().subscribe(data => this.providers = data);
-    }
-  }
-
-  load() {
-    this.loading = true;
-    this.appointmentService.getAll().subscribe({
-      next: data => { this.appointments = data; this.loading = false; },
-      error: () => this.loading = false
-    });
+    this.form = this.fb.group({ providerId: ['', Validators.required], appointmentTime: ['', Validators.required], notes: [''] });
+    this.appointmentService.getAll().subscribe({ next: data => { this.appointments = data; this.loading = false; }, error: () => this.loading = false });
+    if (this.auth.role === 'PATIENT') { this.providerService.getAll().subscribe(data => this.providers = data); }
   }
 
   submitAppointment() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.submitting = true;
-    this.formError = '';
+    this.submitting = true; this.formError = '';
     const val = this.form.value;
-    this.appointmentService.create({
-      providerId: Number(val.providerId),
-      appointmentTime: val.appointmentTime,
-      notes: val.notes
-    }).subscribe({
-      next: apt => {
-        this.appointments.unshift(apt);
-        this.form.reset();
-        this.showForm = false;
-        this.submitting = false;
-      },
+    this.appointmentService.create({ providerId: Number(val.providerId), appointmentTime: val.appointmentTime, notes: val.notes }).subscribe({
+      next: apt => { this.appointments.unshift(apt); this.form.reset(); this.showForm = false; this.submitting = false; },
       error: () => { this.formError = 'Failed to schedule appointment.'; this.submitting = false; }
     });
   }
@@ -181,18 +140,11 @@ export class AppointmentsComponent implements OnInit {
 
   cancel(apt: AppointmentDto) {
     if (!confirm('Cancel this appointment?')) return;
-    this.appointmentService.cancel(apt.id!).subscribe(() => {
-      this.appointments = this.appointments.filter(a => a.id !== apt.id);
-    });
+    this.appointmentService.cancel(apt.id!).subscribe(() => { this.appointments = this.appointments.filter(a => a.id !== apt.id); });
   }
 
   statusBadge(status: string): string {
-    const map: Record<string, string> = {
-      PENDING: 'bg-warning text-dark',
-      CONFIRMED: 'bg-success',
-      COMPLETED: 'bg-secondary',
-      CANCELLED: 'bg-danger'
-    };
-    return `badge ${map[status] ?? 'bg-secondary'}`;
+    const map: Record<string, string> = { PENDING: 'badge-warning', CONFIRMED: 'badge-success', COMPLETED: 'badge-muted', CANCELLED: 'badge-danger' };
+    return 'badge ' + (map[status] ?? 'badge-muted');
   }
 }

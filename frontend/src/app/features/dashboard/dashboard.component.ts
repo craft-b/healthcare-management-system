@@ -14,210 +14,119 @@ import { AppointmentDto, InvoiceDto, PrescriptionDto, PatientDto } from '../../c
   imports: [RouterLink, DatePipe],
   template: `
     <div class="page-container">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h3 class="mb-0 fw-bold">Welcome, {{ auth.currentUser()?.fullName }}</h3>
-          <small class="text-muted">{{ today | date:'fullDate' }}</small>
-        </div>
-        <span class="badge bg-primary fs-6">{{ auth.role }}</span>
+      <div class="mb-4">
+        <h3 style="margin-bottom:.2rem">Good {{ greeting }}, {{ firstName }}</h3>
+        <p style="color:var(--muted);margin:0;font-size:.9rem">{{ today | date:'EEEE, MMMM d, y' }}</p>
       </div>
 
-      <!-- Patient Dashboard -->
       @if (auth.role === 'PATIENT') {
-        <div class="row g-4 mb-4">
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="bi bi-calendar-check text-primary" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ upcomingCount }}</h4>
-                <p class="text-muted mb-0">Upcoming Appointments</p>
-              </div>
-            </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem">
+          <div class="stat-card">
+            <div class="stat-icon navy"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="stat-value">{{ upcomingCount }}</div><div class="stat-label">Upcoming Appts</div></div>
           </div>
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="bi bi-receipt text-warning" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ pendingInvoicesCount }}</h4>
-                <p class="text-muted mb-0">Pending Invoices</p>
-              </div>
-            </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
+            <div><div class="stat-value">{{ pendingInvoicesCount }}</div><div class="stat-label">Pending Invoices</div></div>
           </div>
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="bi bi-prescription2 text-success" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ prescriptionsCount }}</h4>
-                <p class="text-muted mb-0">Active Prescriptions</p>
-              </div>
-            </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-prescription2"></i></div>
+            <div><div class="stat-value">{{ prescriptions.length }}</div><div class="stat-label">Prescriptions</div></div>
           </div>
         </div>
 
-        <div class="row g-4">
-          <div class="col-lg-7">
-            <div class="card">
-              <div class="card-header py-3">
-                <i class="bi bi-calendar-event me-2"></i>Upcoming Appointments
-              </div>
-              <div class="card-body p-0">
-                @if (appointments.length === 0) {
-                  <p class="text-muted text-center py-4">No upcoming appointments.</p>
-                } @else {
-                  <ul class="list-group list-group-flush">
-                    @for (apt of appointments.slice(0, 5); track apt.id) {
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                          <div class="fw-semibold">Dr. {{ apt.providerName }}</div>
-                          <small class="text-muted">{{ apt.appointmentTime | date:'medium' }}</small>
-                        </div>
-                        <span class="badge" [class]="statusBadge(apt.status)">{{ apt.status }}</span>
-                      </li>
-                    }
-                  </ul>
-                }
-              </div>
-              <div class="card-footer text-end">
-                <a routerLink="/appointments" class="btn btn-sm btn-outline-primary">View All</a>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="card">
-              <div class="card-header py-3">
-                <i class="bi bi-bell me-2"></i>Notifications
-              </div>
-              <div class="card-body">
-                @if (pendingInvoicesCount > 0) {
-                  <div class="alert alert-warning py-2">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    You have {{ pendingInvoicesCount }} unpaid invoice(s).
-                    <a routerLink="/billing" class="alert-link ms-1">View</a>
+        <div style="display:grid;grid-template-columns:3fr 2fr;gap:1.5rem">
+          <div class="card">
+            <div class="card-header"><i class="bi bi-calendar-event"></i>Upcoming Appointments</div>
+            @if (upcomingApts.length === 0) {
+              <div class="empty-state"><i class="bi bi-calendar-x"></i><p>No upcoming appointments. <a routerLink="/appointments">Schedule one</a></p></div>
+            } @else {
+              @for (apt of upcomingApts.slice(0,5); track apt.id) {
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.25rem;border-bottom:1px solid #eef1f7">
+                  <div>
+                    <div style="font-weight:600;font-size:.9rem">Dr. {{ apt.providerName }}</div>
+                    <div style="font-size:.8rem;color:var(--muted)">{{ apt.appointmentTime | date:'EEE, MMM d · h:mm a' }}</div>
+                    @if (apt.notes) { <div style="font-size:.77rem;color:var(--muted);margin-top:.1rem">{{ apt.notes }}</div> }
                   </div>
+                  <span class="badge" [class]="statusBadge(apt.status)">{{ apt.status }}</span>
+                </div>
+              }
+            }
+            <div class="card-footer" style="text-align:right"><a routerLink="/appointments" class="btn btn-outline btn-sm">View all</a></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-bell"></i>Notifications</div>
+              <div class="card-body" style="padding:.75rem 1rem;display:flex;flex-direction:column;gap:.5rem">
+                @if (pendingInvoicesCount > 0) {
+                  <div class="alert alert-warning" style="margin:0"><i class="bi bi-exclamation-triangle-fill"></i><span>{{ pendingInvoicesCount }} unpaid invoice(s). <a routerLink="/billing">Pay now</a></span></div>
                 }
                 @if (upcomingCount === 0) {
-                  <div class="alert alert-info py-2">
-                    <i class="bi bi-info-circle me-2"></i>
-                    No upcoming appointments.
-                    <a routerLink="/appointments" class="alert-link ms-1">Schedule one</a>
-                  </div>
+                  <div class="alert alert-info" style="margin:0"><i class="bi bi-info-circle-fill"></i><span>No upcoming appointments. <a routerLink="/appointments">Schedule</a></span></div>
                 }
                 @if (pendingInvoicesCount === 0 && upcomingCount > 0) {
-                  <div class="alert alert-success py-2">
-                    <i class="bi bi-check-circle me-2"></i>All clear! No pending actions.
-                  </div>
+                  <div class="alert alert-success" style="margin:0"><i class="bi bi-check-circle-fill"></i><span>All clear!</span></div>
                 }
               </div>
             </div>
+            <div class="card">
+              <div class="card-header"><i class="bi bi-prescription2"></i>Recent Prescriptions</div>
+              @if (prescriptions.length === 0) {
+                <div style="padding:1.25rem;text-align:center;color:var(--muted);font-size:.85rem">None on file</div>
+              } @else {
+                @for (rx of prescriptions.slice(0,3); track rx.id) {
+                  <div style="padding:.65rem 1.25rem;border-bottom:1px solid #eef1f7;display:flex;justify-content:space-between;align-items:center">
+                    <div><div style="font-weight:600;font-size:.875rem">{{ rx.medicationName }}</div><div style="font-size:.77rem;color:var(--muted)">{{ rx.dosage }}</div></div>
+                    <span class="badge" [class]="rx.sentToPharmacy ? 'badge-success' : 'badge-warning'">{{ rx.sentToPharmacy ? 'Sent' : 'Pending' }}</span>
+                  </div>
+                }
+              }
+            </div>
           </div>
         </div>
       }
 
-      <!-- Provider Dashboard -->
       @if (auth.role === 'PROVIDER') {
-        <div class="row g-4 mb-4">
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="bi bi-calendar-check text-primary" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ appointments.length }}</h4>
-                <p class="text-muted mb-0">My Appointments</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="bi bi-people text-info" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ patients.length }}</h4>
-                <p class="text-muted mb-0">Patients</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="bi bi-prescription2 text-success" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ prescriptionsCount }}</h4>
-                <p class="text-muted mb-0">Prescriptions Issued</p>
-              </div>
-            </div>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem">
+          <div class="stat-card"><div class="stat-icon navy"><i class="bi bi-calendar-check"></i></div><div><div class="stat-value">{{ appointments.length }}</div><div class="stat-label">My Appointments</div></div></div>
+          <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-people"></i></div><div><div class="stat-value">{{ patients.length }}</div><div class="stat-label">Patients</div></div></div>
+          <div class="stat-card"><div class="stat-icon green"><i class="bi bi-prescription2"></i></div><div><div class="stat-value">{{ prescriptions.length }}</div><div class="stat-label">Prescriptions</div></div></div>
         </div>
         <div class="card">
-          <div class="card-header py-3"><i class="bi bi-calendar-event me-2"></i>Upcoming Appointments</div>
-          <div class="card-body p-0">
-            @if (appointments.length === 0) {
-              <p class="text-muted text-center py-4">No appointments scheduled.</p>
-            } @else {
-              <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                  <thead class="table-light">
-                    <tr><th>Patient</th><th>Date & Time</th><th>Status</th></tr>
-                  </thead>
-                  <tbody>
-                    @for (apt of appointments.slice(0, 8); track apt.id) {
-                      <tr>
-                        <td class="fw-semibold">{{ apt.patientName }}</td>
-                        <td>{{ apt.appointmentTime | date:'medium' }}</td>
-                        <td><span class="badge" [class]="statusBadge(apt.status)">{{ apt.status }}</span></td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-          </div>
-          <div class="card-footer text-end">
-            <a routerLink="/appointments" class="btn btn-sm btn-outline-primary">View All</a>
-          </div>
+          <div class="card-header"><i class="bi bi-calendar-event"></i>Upcoming Appointments</div>
+          @if (appointments.length === 0) {
+            <div class="empty-state"><i class="bi bi-calendar-x"></i><p>No appointments scheduled.</p></div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table">
+                <thead><tr><th>Patient</th><th>Date & Time</th><th>Notes</th><th>Status</th></tr></thead>
+                <tbody>
+                  @for (apt of appointments.slice(0,8); track apt.id) {
+                    <tr>
+                      <td style="font-weight:600">{{ apt.patientName }}</td>
+                      <td style="color:var(--muted);font-size:.875rem">{{ apt.appointmentTime | date:'EEE, MMM d · h:mm a' }}</td>
+                      <td style="color:var(--muted);font-size:.875rem">{{ apt.notes || '—' }}</td>
+                      <td><span class="badge" [class]="statusBadge(apt.status)">{{ apt.status }}</span></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+          <div class="card-footer" style="text-align:right"><a routerLink="/appointments" class="btn btn-outline btn-sm">View all</a></div>
         </div>
       }
 
-      <!-- Admin Dashboard -->
       @if (auth.role === 'ADMIN') {
-        <div class="row g-4 mb-4">
-          <div class="col-md-3">
-            <div class="card h-100 border-primary">
-              <div class="card-body text-center">
-                <i class="bi bi-people text-primary" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ patients.length }}</h4>
-                <p class="text-muted mb-0">Total Patients</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card h-100 border-success">
-              <div class="card-body text-center">
-                <i class="bi bi-calendar-check text-success" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ appointments.length }}</h4>
-                <p class="text-muted mb-0">Total Appointments</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card h-100 border-warning">
-              <div class="card-body text-center">
-                <i class="bi bi-receipt text-warning" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ pendingInvoicesCount }}</h4>
-                <p class="text-muted mb-0">Pending Invoices</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card h-100 border-info">
-              <div class="card-body text-center">
-                <i class="bi bi-prescription2 text-info" style="font-size:2.5rem"></i>
-                <h4 class="mt-2 fw-bold">{{ prescriptionsCount }}</h4>
-                <p class="text-muted mb-0">Prescriptions</p>
-              </div>
-            </div>
-          </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem">
+          <div class="stat-card"><div class="stat-icon navy"><i class="bi bi-people"></i></div><div><div class="stat-value">{{ patients.length }}</div><div class="stat-label">Total Patients</div></div></div>
+          <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-calendar-check"></i></div><div><div class="stat-value">{{ appointments.length }}</div><div class="stat-label">Appointments</div></div></div>
+          <div class="stat-card"><div class="stat-icon orange"><i class="bi bi-receipt"></i></div><div><div class="stat-value">{{ pendingInvoicesCount }}</div><div class="stat-label">Pending Invoices</div></div></div>
+          <div class="stat-card"><div class="stat-icon green"><i class="bi bi-prescription2"></i></div><div><div class="stat-value">{{ prescriptions.length }}</div><div class="stat-label">Prescriptions</div></div></div>
         </div>
-        <div class="text-center">
-          <a routerLink="/reports" class="btn btn-primary btn-lg">
-            <i class="bi bi-bar-chart-line me-2"></i>View Full Reports
-          </a>
+        <div style="text-align:center">
+          <a routerLink="/reports" class="btn btn-navy btn-lg"><i class="bi bi-bar-chart-line"></i>View Full Reports</a>
         </div>
       }
     </div>
@@ -230,42 +139,23 @@ export class DashboardComponent implements OnInit {
   prescriptions: PrescriptionDto[] = [];
   patients: PatientDto[] = [];
 
-  get upcomingCount() {
-    return this.appointments.filter(a => a.status === 'PENDING' || a.status === 'CONFIRMED').length;
-  }
+  get greeting() { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'; }
+  get firstName() { return this.auth.currentUser()?.fullName?.split(' ')[0] ?? ''; }
+  get upcomingApts() { return this.appointments.filter(a => a.status === 'PENDING' || a.status === 'CONFIRMED'); }
+  get upcomingCount() { return this.upcomingApts.length; }
+  get pendingInvoicesCount() { return this.invoices.filter(i => i.status === 'PENDING').length; }
 
-  get pendingInvoicesCount() {
-    return this.invoices.filter(i => i.status === 'PENDING').length;
-  }
-
-  get prescriptionsCount() {
-    return this.prescriptions.length;
-  }
-
-  constructor(
-    public auth: AuthService,
-    private appointmentService: AppointmentService,
-    private invoiceService: InvoiceService,
-    private prescriptionService: PrescriptionService,
-    private patientService: PatientService
-  ) {}
+  constructor(public auth: AuthService, private appointmentService: AppointmentService, private invoiceService: InvoiceService, private prescriptionService: PrescriptionService, private patientService: PatientService) {}
 
   ngOnInit() {
     this.appointmentService.getAll().subscribe(data => this.appointments = data);
     this.invoiceService.getAll().subscribe(data => this.invoices = data);
     this.prescriptionService.getAll().subscribe(data => this.prescriptions = data);
-    if (this.auth.role !== 'PATIENT') {
-      this.patientService.getAll().subscribe(data => this.patients = data);
-    }
+    if (this.auth.role !== 'PATIENT') { this.patientService.getAll().subscribe(data => this.patients = data); }
   }
 
   statusBadge(status: string): string {
-    const map: Record<string, string> = {
-      PENDING: 'bg-warning text-dark',
-      CONFIRMED: 'bg-success',
-      COMPLETED: 'bg-secondary',
-      CANCELLED: 'bg-danger'
-    };
-    return `badge ${map[status] ?? 'bg-secondary'}`;
+    const map: Record<string, string> = { PENDING: 'badge-warning', CONFIRMED: 'badge-success', COMPLETED: 'badge-muted', CANCELLED: 'badge-danger' };
+    return 'badge ' + (map[status] ?? 'badge-muted');
   }
 }

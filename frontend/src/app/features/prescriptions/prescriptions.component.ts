@@ -12,102 +12,86 @@ import { PrescriptionDto, PatientDto } from '../../core/models';
   imports: [ReactiveFormsModule, DatePipe],
   template: `
     <div class="page-container">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0"><i class="bi bi-prescription2 me-2"></i>Prescriptions</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+        <div>
+          <h3 style="margin-bottom:.2rem">Prescriptions</h3>
+          <p style="color:var(--muted);margin:0;font-size:.875rem">{{ prescriptions.length }} prescription(s)</p>
+        </div>
         @if (auth.role === 'PROVIDER') {
-          <button class="btn btn-primary" (click)="openNew()">
-            <i class="bi bi-plus-lg me-1"></i>New Prescription
-          </button>
+          <button class="btn btn-primary" (click)="openNew()"><i class="bi bi-plus-lg"></i>New Prescription</button>
         }
       </div>
 
-      <!-- New / Edit Prescription Form -->
       @if (showForm && auth.role === 'PROVIDER') {
         <div class="card mb-4">
-          <div class="card-header py-3">{{ editingId ? 'Edit' : 'New' }} Prescription</div>
+          <div class="card-header"><i class="bi bi-prescription2"></i>{{ editingId ? 'Edit' : 'New' }} Prescription</div>
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="submit()">
-              <div class="row g-3">
-                <div class="col-md-4">
+              <div class="form-row cols-3">
+                <div>
                   <label class="form-label">Patient</label>
                   <select class="form-select" formControlName="patientId" [attr.disabled]="editingId ? true : null">
                     <option value="">Select patient</option>
-                    @for (p of patients; track p.id) {
-                      <option [value]="p.id">{{ p.fullName }}</option>
-                    }
+                    @for (p of patients; track p.id) { <option [value]="p.id">{{ p.fullName }}</option> }
                   </select>
                 </div>
-                <div class="col-md-4">
+                <div>
                   <label class="form-label">Medication Name</label>
-                  <input type="text" class="form-control" formControlName="medicationName" placeholder="e.g. Amoxicillin" />
+                  <input type="text" class="form-control" formControlName="medicationName" placeholder="e.g. Amoxicillin 500mg" />
                 </div>
-                <div class="col-md-4">
+                <div>
                   <label class="form-label">Dosage</label>
                   <input type="text" class="form-control" formControlName="dosage" placeholder="e.g. 500mg twice daily" />
                 </div>
-                <div class="col-12">
-                  <label class="form-label">Instructions</label>
-                  <textarea class="form-control" rows="2" formControlName="instructions" placeholder="e.g. Take with food"></textarea>
-                </div>
               </div>
-              @if (formError) {
-                <div class="alert alert-danger mt-3 py-2">{{ formError }}</div>
-              }
-              <div class="mt-3">
-                <button type="submit" class="btn btn-success me-2" [disabled]="submitting">
-                  @if (submitting) { <span class="spinner-border spinner-border-sm me-2"></span> }
-                  {{ editingId ? 'Update' : 'Create' }} Prescription
+              <div style="margin-top:1rem">
+                <label class="form-label">Instructions</label>
+                <textarea class="form-control" rows="2" formControlName="instructions" placeholder="e.g. Take with food. Avoid alcohol."></textarea>
+              </div>
+              @if (formError) { <div class="alert alert-danger mt-2"><i class="bi bi-exclamation-circle-fill"></i>{{ formError }}</div> }
+              <div style="margin-top:1rem;display:flex;gap:.75rem">
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  @if (submitting) { <span class="spinner" style="width:16px;height:16px;border-width:2px"></span> }
+                  {{ editingId ? 'Update' : 'Create' }}
                 </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="closeForm()">Cancel</button>
+                <button type="button" class="btn btn-ghost" (click)="closeForm()">Cancel</button>
               </div>
             </form>
           </div>
         </div>
       }
 
-      <!-- Prescriptions List -->
       @if (loading) {
-        <div class="spinner-center"><div class="spinner-border text-primary"></div></div>
+        <div class="spinner-center"><div class="spinner"></div></div>
       } @else if (prescriptions.length === 0) {
-        <div class="card text-center py-5">
-          <i class="bi bi-prescription2 text-muted" style="font-size:3rem"></i>
-          <p class="text-muted mt-2">No prescriptions found.</p>
-        </div>
+        <div class="card"><div class="empty-state"><i class="bi bi-prescription2"></i><p>No prescriptions found.</p></div></div>
       } @else {
-        <div class="row g-3">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem">
           @for (rx of prescriptions; track rx.id) {
-            <div class="col-md-6 col-lg-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="fw-bold mb-0">{{ rx.medicationName }}</h6>
-                    @if (rx.sentToPharmacy) {
-                      <span class="badge bg-success">Sent</span>
-                    } @else {
-                      <span class="badge bg-warning text-dark">Pending</span>
-                    }
-                  </div>
-                  <p class="text-muted small mb-1"><i class="bi bi-person me-1"></i>{{ rx.patientName }}</p>
-                  <p class="text-muted small mb-1"><i class="bi bi-capsule me-1"></i>{{ rx.dosage }}</p>
-                  <p class="small mb-1">{{ rx.instructions }}</p>
-                  <p class="text-muted small mb-0">
-                    <i class="bi bi-clock me-1"></i>{{ rx.createdAt | date:'mediumDate' }}
-                    @if (rx.sentAt) { · Sent {{ rx.sentAt | date:'mediumDate' }} }
-                  </p>
+            <div class="rx-card">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+                <div>
+                  <div style="font-weight:700;font-size:.975rem;color:var(--navy)">{{ rx.medicationName }}</div>
+                  <div style="font-size:.8rem;color:var(--muted);margin-top:.1rem"><i class="bi bi-capsule me-1"></i>{{ rx.dosage }}</div>
                 </div>
-                @if (auth.role === 'PROVIDER') {
-                  <div class="card-footer d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary" (click)="edit(rx)">
-                      <i class="bi bi-pencil me-1"></i>Edit
-                    </button>
-                    @if (!rx.sentToPharmacy) {
-                      <button class="btn btn-sm btn-success" (click)="send(rx)">
-                        <i class="bi bi-send me-1"></i>Send to Pharmacy
-                      </button>
-                    }
-                  </div>
-                }
+                <span class="badge" [class]="rx.sentToPharmacy ? 'badge-success' : 'badge-warning'">
+                  {{ rx.sentToPharmacy ? 'Sent' : 'Pending' }}
+                </span>
               </div>
+              <div style="font-size:.85rem;color:var(--muted);margin-bottom:.5rem"><i class="bi bi-person me-1"></i>{{ rx.patientName }}</div>
+              <div style="font-size:.85rem;margin-bottom:.5rem">{{ rx.instructions }}</div>
+              <div style="font-size:.77rem;color:var(--muted)">
+                <i class="bi bi-clock me-1"></i>{{ rx.createdAt | date:'MMM d, y' }}
+                @if (rx.sentAt) { &nbsp;· Sent {{ rx.sentAt | date:'MMM d' }} }
+              </div>
+              @if (auth.role === 'PROVIDER') {
+                <div class="rx-card-footer">
+                  <button class="btn btn-outline btn-sm" (click)="edit(rx)"><i class="bi bi-pencil"></i>Edit</button>
+                  @if (!rx.sentToPharmacy) {
+                    <button class="btn btn-success btn-sm" (click)="send(rx)"><i class="bi bi-send"></i>Send to Pharmacy</button>
+                  }
+                </div>
+              }
             </div>
           }
         </div>
@@ -125,68 +109,28 @@ export class PrescriptionsComponent implements OnInit {
   formError = '';
   editingId: number | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private prescriptionService: PrescriptionService,
-    private patientService: PatientService,
-    public auth: AuthService
-  ) {}
+  constructor(private fb: FormBuilder, private prescriptionService: PrescriptionService, private patientService: PatientService, public auth: AuthService) {}
 
   ngOnInit() {
-    this.form = this.fb.group({
-      patientId: ['', Validators.required],
-      medicationName: ['', Validators.required],
-      dosage: ['', Validators.required],
-      instructions: ['', Validators.required]
-    });
-    this.prescriptionService.getAll().subscribe({
-      next: data => { this.prescriptions = data; this.loading = false; },
-      error: () => this.loading = false
-    });
-    if (this.auth.role === 'PROVIDER') {
-      this.patientService.getAll().subscribe(data => this.patients = data);
-    }
+    this.form = this.fb.group({ patientId: ['', Validators.required], medicationName: ['', Validators.required], dosage: ['', Validators.required], instructions: ['', Validators.required] });
+    this.prescriptionService.getAll().subscribe({ next: data => { this.prescriptions = data; this.loading = false; }, error: () => this.loading = false });
+    if (this.auth.role === 'PROVIDER') { this.patientService.getAll().subscribe(data => this.patients = data); }
   }
 
-  openNew() {
-    this.editingId = null;
-    this.form.reset();
-    this.showForm = true;
-    this.formError = '';
-  }
-
-  edit(rx: PrescriptionDto) {
-    this.editingId = rx.id!;
-    this.form.patchValue({ patientId: rx.patientId, medicationName: rx.medicationName, dosage: rx.dosage, instructions: rx.instructions });
-    this.showForm = true;
-    this.formError = '';
-  }
-
-  closeForm() {
-    this.showForm = false;
-    this.editingId = null;
-  }
+  openNew() { this.editingId = null; this.form.reset(); this.showForm = true; this.formError = ''; }
+  edit(rx: PrescriptionDto) { this.editingId = rx.id!; this.form.patchValue(rx); this.showForm = true; this.formError = ''; }
+  closeForm() { this.showForm = false; this.editingId = null; }
 
   submit() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.submitting = true;
-    this.formError = '';
+    this.submitting = true; this.formError = '';
     const val = { ...this.form.value, patientId: Number(this.form.value.patientId) };
-
-    const obs = this.editingId
-      ? this.prescriptionService.update(this.editingId, val)
-      : this.prescriptionService.create(val);
-
+    const obs = this.editingId ? this.prescriptionService.update(this.editingId, val) : this.prescriptionService.create(val);
     obs.subscribe({
       next: rx => {
-        if (this.editingId) {
-          const idx = this.prescriptions.findIndex(p => p.id === this.editingId);
-          if (idx !== -1) this.prescriptions[idx] = rx;
-        } else {
-          this.prescriptions.unshift(rx);
-        }
-        this.closeForm();
-        this.submitting = false;
+        if (this.editingId) { const i = this.prescriptions.findIndex(p => p.id === this.editingId); if (i !== -1) this.prescriptions[i] = rx; }
+        else { this.prescriptions.unshift(rx); }
+        this.closeForm(); this.submitting = false;
       },
       error: () => { this.formError = 'Failed to save prescription.'; this.submitting = false; }
     });
@@ -194,9 +138,6 @@ export class PrescriptionsComponent implements OnInit {
 
   send(rx: PrescriptionDto) {
     if (!confirm(`Send "${rx.medicationName}" to pharmacy for ${rx.patientName}?`)) return;
-    this.prescriptionService.sendToPharmacy(rx.id!).subscribe(updated => {
-      const idx = this.prescriptions.findIndex(p => p.id === rx.id);
-      if (idx !== -1) this.prescriptions[idx] = updated;
-    });
+    this.prescriptionService.sendToPharmacy(rx.id!).subscribe(updated => { const i = this.prescriptions.findIndex(p => p.id === rx.id); if (i !== -1) this.prescriptions[i] = updated; });
   }
 }

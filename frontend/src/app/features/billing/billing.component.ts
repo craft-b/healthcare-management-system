@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+import { DatePipe, CurrencyPipe, TitleCasePipe } from '@angular/common';
 import { InvoiceService } from '../../core/services/invoice.service';
 import { PatientService } from '../../core/services/patient.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,102 +9,87 @@ import { InvoiceDto, PatientDto } from '../../core/models';
 @Component({
   selector: 'app-billing',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe, CurrencyPipe],
+  imports: [ReactiveFormsModule, DatePipe, CurrencyPipe, TitleCasePipe],
   template: `
     <div class="page-container">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0"><i class="bi bi-receipt me-2"></i>Billing & Invoices</h3>
-        @if (auth.role === 'ADMIN' || auth.role === 'PROVIDER') {
-          <button class="btn btn-primary" (click)="showForm = !showForm">
-            <i class="bi bi-plus-lg me-1"></i>Create Invoice
-          </button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+        <div>
+          <h3 style="margin-bottom:.2rem">Billing & Invoices</h3>
+          <p style="color:var(--muted);margin:0;font-size:.875rem">{{ invoices.length }} invoice(s) · {{ pendingCount }} pending</p>
+        </div>
+        @if (auth.role !== 'PATIENT') {
+          <button class="btn btn-primary" (click)="showForm = !showForm"><i class="bi bi-plus-lg"></i>Create Invoice</button>
         }
       </div>
 
-      <!-- Create Invoice Form (Admin/Provider) -->
       @if (showForm) {
         <div class="card mb-4">
-          <div class="card-header py-3">New Invoice</div>
+          <div class="card-header"><i class="bi bi-file-earmark-plus"></i>New Invoice</div>
           <div class="card-body">
             <form [formGroup]="invoiceForm" (ngSubmit)="createInvoice()">
-              <div class="row g-3">
-                <div class="col-md-4">
+              <div class="form-row cols-3">
+                <div>
                   <label class="form-label">Patient</label>
                   <select class="form-select" formControlName="patientId">
                     <option value="">Select patient</option>
-                    @for (p of patients; track p.id) {
-                      <option [value]="p.id">{{ p.fullName }}</option>
-                    }
+                    @for (p of patients; track p.id) { <option [value]="p.id">{{ p.fullName }}</option> }
                   </select>
                 </div>
-                <div class="col-md-5">
+                <div>
                   <label class="form-label">Service Description</label>
                   <input type="text" class="form-control" formControlName="serviceDescription" placeholder="e.g. Consultation, Lab Test" />
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Amount ($)</label>
-                  <input type="number" class="form-control" formControlName="amount" min="0.01" step="0.01" />
+                <div>
+                  <label class="form-label">Amount (USD)</label>
+                  <input type="number" class="form-control" formControlName="amount" min="0.01" step="0.01" placeholder="0.00" />
                 </div>
               </div>
-              @if (formError) {
-                <div class="alert alert-danger mt-3 py-2">{{ formError }}</div>
-              }
-              <div class="mt-3">
-                <button type="submit" class="btn btn-success me-2" [disabled]="submitting">
-                  @if (submitting) { <span class="spinner-border spinner-border-sm me-2"></span> }
+              @if (formError) { <div class="alert alert-danger mt-2"><i class="bi bi-exclamation-circle-fill"></i>{{ formError }}</div> }
+              <div style="margin-top:1rem;display:flex;gap:.75rem">
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  @if (submitting) { <span class="spinner" style="width:16px;height:16px;border-width:2px"></span> }
                   Create Invoice
                 </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="showForm = false">Cancel</button>
+                <button type="button" class="btn btn-ghost" (click)="showForm = false">Cancel</button>
               </div>
             </form>
           </div>
         </div>
       }
 
-      <!-- Invoice Table -->
       @if (loading) {
-        <div class="spinner-center"><div class="spinner-border text-primary"></div></div>
+        <div class="spinner-center"><div class="spinner"></div></div>
       } @else if (invoices.length === 0) {
-        <div class="card text-center py-5">
-          <i class="bi bi-receipt text-muted" style="font-size:3rem"></i>
-          <p class="text-muted mt-2">No invoices found.</p>
-        </div>
+        <div class="card"><div class="empty-state"><i class="bi bi-receipt"></i><p>No invoices found.</p></div></div>
       } @else {
         <div class="card">
           <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+            <table class="table">
+              <thead>
                 <tr>
                   @if (auth.role !== 'PATIENT') { <th>Patient</th> }
-                  <th>Date</th>
-                  <th>Service Description</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Claim #</th>
-                  <th>Actions</th>
+                  <th>Date</th><th>Service</th><th>Amount</th><th>Status</th><th>Claim #</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 @for (inv of invoices; track inv.id) {
                   <tr>
-                    @if (auth.role !== 'PATIENT') { <td>{{ inv.patientName }}</td> }
-                    <td>{{ inv.issuedAt | date:'mediumDate' }}</td>
-                    <td>{{ inv.serviceDescription }}</td>
-                    <td class="fw-semibold">{{ inv.amount | currency }}</td>
-                    <td><span class="badge" [class]="statusBadge(inv.status)">{{ inv.status }}</span></td>
-                    <td>{{ inv.insuranceClaimNumber || '—' }}</td>
+                    @if (auth.role !== 'PATIENT') { <td style="font-weight:600">{{ inv.patientName }}</td> }
+                    <td style="font-size:.875rem;color:var(--muted)">{{ inv.issuedAt | date:'MMM d, y' }}</td>
+                    <td style="font-size:.875rem">{{ inv.serviceDescription }}</td>
+                    <td style="font-weight:700;color:var(--navy)">{{ inv.amount | currency }}</td>
+                    <td><span class="badge" [class]="statusBadge(inv.status)">{{ inv.status | titlecase }}</span></td>
+                    <td style="font-size:.8rem;color:var(--muted)">{{ inv.insuranceClaimNumber || '—' }}</td>
                     <td>
-                      @if (inv.status === 'PENDING') {
-                        <button class="btn btn-sm btn-success me-1" (click)="pay(inv)">
-                          <i class="bi bi-credit-card me-1"></i>Pay
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary" (click)="submitClaim(inv)">
-                          <i class="bi bi-file-earmark-text me-1"></i>Claim
-                        </button>
-                      }
-                      @if (inv.status === 'PAID') {
-                        <span class="text-success"><i class="bi bi-check-circle me-1"></i>Paid {{ inv.paidAt | date:'shortDate' }}</span>
-                      }
+                      <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                        @if (inv.status === 'PENDING') {
+                          <button class="btn btn-success btn-sm" (click)="pay(inv)"><i class="bi bi-credit-card"></i>Pay</button>
+                          <button class="btn btn-outline btn-sm" (click)="submitClaim(inv)"><i class="bi bi-file-earmark-text"></i>Claim</button>
+                        }
+                        @if (inv.status === 'PAID') {
+                          <span style="font-size:.8rem;color:var(--success);font-weight:600"><i class="bi bi-check-circle-fill"></i> Paid {{ inv.paidAt | date:'MMM d' }}</span>
+                        }
+                      </div>
                     </td>
                   </tr>
                 }
@@ -125,70 +110,39 @@ export class BillingComponent implements OnInit {
   submitting = false;
   formError = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private invoiceService: InvoiceService,
-    private patientService: PatientService,
-    public auth: AuthService
-  ) {}
+  get pendingCount() { return this.invoices.filter(i => i.status === 'PENDING').length; }
+
+  constructor(private fb: FormBuilder, private invoiceService: InvoiceService, private patientService: PatientService, public auth: AuthService) {}
 
   ngOnInit() {
-    this.invoiceForm = this.fb.group({
-      patientId: ['', Validators.required],
-      serviceDescription: ['', Validators.required],
-      amount: ['', [Validators.required, Validators.min(0.01)]]
-    });
-    this.invoiceService.getAll().subscribe({
-      next: data => { this.invoices = data; this.loading = false; },
-      error: () => this.loading = false
-    });
-    if (this.auth.role !== 'PATIENT') {
-      this.patientService.getAll().subscribe(data => this.patients = data);
-    }
+    this.invoiceForm = this.fb.group({ patientId: ['', Validators.required], serviceDescription: ['', Validators.required], amount: ['', [Validators.required, Validators.min(0.01)]] });
+    this.invoiceService.getAll().subscribe({ next: data => { this.invoices = data; this.loading = false; }, error: () => this.loading = false });
+    if (this.auth.role !== 'PATIENT') { this.patientService.getAll().subscribe(data => this.patients = data); }
   }
 
   createInvoice() {
     if (this.invoiceForm.invalid) { this.invoiceForm.markAllAsTouched(); return; }
-    this.submitting = true;
-    this.formError = '';
+    this.submitting = true; this.formError = '';
     const val = this.invoiceForm.value;
     this.invoiceService.create({ patientId: Number(val.patientId), serviceDescription: val.serviceDescription, amount: val.amount }).subscribe({
-      next: inv => {
-        this.invoices.unshift(inv);
-        this.invoiceForm.reset();
-        this.showForm = false;
-        this.submitting = false;
-      },
+      next: inv => { this.invoices.unshift(inv); this.invoiceForm.reset(); this.showForm = false; this.submitting = false; },
       error: () => { this.formError = 'Failed to create invoice.'; this.submitting = false; }
     });
   }
 
   pay(inv: InvoiceDto) {
-    if (!confirm(`Pay $${inv.amount} for "${inv.serviceDescription}"?`)) return;
-    this.invoiceService.pay(inv.id!).subscribe(updated => {
-      const idx = this.invoices.findIndex(i => i.id === inv.id);
-      if (idx !== -1) this.invoices[idx] = updated;
-    });
+    if (!confirm(`Pay ${inv.amount} for "${inv.serviceDescription}"?`)) return;
+    this.invoiceService.pay(inv.id!).subscribe(updated => { const i = this.invoices.findIndex(x => x.id === inv.id); if (i !== -1) this.invoices[i] = updated; });
   }
 
   submitClaim(inv: InvoiceDto) {
     const claimNumber = prompt('Enter insurance claim number:');
     if (!claimNumber) return;
-    this.invoiceService.submitClaim(inv.id!, claimNumber).subscribe(updated => {
-      const idx = this.invoices.findIndex(i => i.id === inv.id);
-      if (idx !== -1) this.invoices[idx] = updated;
-    });
+    this.invoiceService.submitClaim(inv.id!, claimNumber).subscribe(updated => { const i = this.invoices.findIndex(x => x.id === inv.id); if (i !== -1) this.invoices[i] = updated; });
   }
 
   statusBadge(status: string): string {
-    const map: Record<string, string> = {
-      PENDING: 'bg-warning text-dark',
-      PAID: 'bg-success',
-      CANCELLED: 'bg-danger',
-      CLAIM_SUBMITTED: 'bg-info',
-      CLAIM_APPROVED: 'bg-success',
-      CLAIM_DENIED: 'bg-danger'
-    };
-    return `badge ${map[status] ?? 'bg-secondary'}`;
+    const map: Record<string, string> = { PENDING: 'badge-warning', PAID: 'badge-success', CANCELLED: 'badge-danger', CLAIM_SUBMITTED: 'badge-info', CLAIM_APPROVED: 'badge-success', CLAIM_DENIED: 'badge-danger' };
+    return 'badge ' + (map[status] ?? 'badge-muted');
   }
 }

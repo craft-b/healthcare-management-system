@@ -12,8 +12,8 @@ spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 
 # JWT — replace with a long random secret in production
-jwt.secret=CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_AT_LEAST_256_BITS
-jwt.expiration=86400000
+app.jwt.secret=CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_AT_LEAST_256_BITS
+app.jwt.expiration-ms=86400000
 
 # CORS
 app.cors.allowed-origins=http://localhost:4200
