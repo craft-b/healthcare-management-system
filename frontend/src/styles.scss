@@ -1,0 +1,82 @@
+/* Global styles */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+}
+
+.card-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e9ecef;
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+  font-weight: 600;
+}
+
+.badge-status {
+  font-size: 0.75rem;
+  padding: 0.4em 0.7em;
+  border-radius: 0.5em;
+}
+
+.table th {
+  font-weight: 600;
+  color: #495057;
+  border-top: none;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.spinner-center {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.alert-inline {
+  margin-top: 1rem;
+}
+
+/* Auth pages */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0d6efd22, #0dcaf022);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-logo i {
+  font-size: 3rem;
+  color: #0d6efd;
+}
+
+.auth-logo h4 {
+  margin-top: 0.5rem;
+  font-weight: 700;
+  color: #212529;
+}

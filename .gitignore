@@ -1,0 +1,24 @@
+# ── Backend ──────────────────────────────────
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+!backend/.mvn/wrapper/maven-wrapper.properties
+backend/*.log
+
+# ── Frontend ─────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/*.log
+
+# ── IDE / OS ──────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.class
+.DS_Store
+Thumbs.db
+
+# ── Environment ───────────────────────────────
+.env
+*.env.local
+application-local.properties
