@@ -213,21 +213,35 @@ Open [http://localhost:4200](http://localhost:4200). Demo data is seeded automat
 
 The app ships as a **single Spring Boot JAR** — Angular is compiled by Maven and bundled into `src/main/resources/static`. No separate frontend service needed.
 
-1. Connect this repository to a new Railway project
-2. Add the **MySQL** database plugin — Railway injects connection env vars automatically
-3. Set two environment variables on the service:
+Deployed on **Render** (free web service) + **TiDB Cloud Serverless** (free MySQL-compatible database, 5GB, no sleep).
 
+### 1 — Database: TiDB Cloud Serverless
+
+1. Sign up at [tidbcloud.com](https://tidbcloud.com) → **Create Cluster → Serverless** (free, no card required)
+2. Once created: **Connect → General** — copy host, port (4000), username, password, database name
+3. Your `DB_URL` will be:
 ```
-SPRING_PROFILES_ACTIVE = prod
-JWT_SECRET             = <your-strong-random-secret>
+jdbc:mysql://<host>:4000/<dbname>?sslMode=VERIFY_IDENTITY&useSSL=true&serverTimezone=UTC
 ```
 
-Railway detects `railway.toml` and runs:
+### 2 — Backend: Render
 
-```
-Build:  cd backend && mvn package -DskipTests
-Start:  java -Dspring.profiles.active=prod -jar backend/target/hms-backend-0.0.1-SNAPSHOT.jar
-```
+1. Sign up at [render.com](https://render.com) → **New → Web Service** → connect this repo
+2. Render detects `render.yaml` automatically. Set these environment variables in the dashboard:
+
+| Variable | Value |
+|---|---|
+| `DB_URL` | Your TiDB JDBC connection string |
+| `DB_USER` | Your TiDB username |
+| `DB_PASSWORD` | Your TiDB password |
+| `JWT_SECRET` | Any strong random string (32+ chars) — or let Render auto-generate |
+
+3. Build command: `cd backend && mvn package -DskipTests`
+4. Start command: `java -Dspring.profiles.active=prod -jar backend/target/hms-backend-0.0.1-SNAPSHOT.jar`
+
+> **Note:** Render's free tier sleeps after 15 minutes of inactivity. The first request after sleep takes ~30 seconds (cold start). This is normal for free hosting — paid tiers eliminate it.
+
+The Angular frontend is bundled inside the Spring Boot JAR at build time — no separate frontend host needed.
 
 ---
 
