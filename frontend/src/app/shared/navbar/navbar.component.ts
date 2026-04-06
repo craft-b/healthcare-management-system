@@ -7,77 +7,256 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   styles: [`
-    nav { background:#fff; border-bottom:1px solid #dde3ee; box-shadow:0 2px 8px rgba(0,38,119,.07); position:sticky; top:0; z-index:100; }
-    .nav-inner { max-width:1200px; margin:0 auto; padding:0 1.5rem; display:flex; align-items:center; gap:1.5rem; height:64px; }
-    .brand { display:flex; align-items:center; gap:.6rem; text-decoration:none; flex-shrink:0; }
-    .brand-icon { width:36px; height:36px; background:#002677; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; }
-    .brand-name { font-weight:800; font-size:1.05rem; color:#002677; letter-spacing:-.01em; display:block; line-height:1.1; }
-    .brand-sub  { font-size:.62rem; color:#5a6478; font-weight:500; text-transform:uppercase; letter-spacing:.06em; }
-    .nav-links  { display:flex; align-items:center; gap:.15rem; flex:1; list-style:none; margin:0; padding:0; }
-    .nav-links a { display:flex; align-items:center; gap:.4rem; padding:.4rem .85rem; border-radius:50px; color:#5a6478; font-weight:600; font-size:.855rem; text-decoration:none; transition:all .18s; white-space:nowrap; }
-    .nav-links a:hover, .nav-links a.active { background:#e8eef8; color:#002677; text-decoration:none; }
-    .nav-right { display:flex; align-items:center; gap:.75rem; margin-left:auto; flex-shrink:0; }
-    .dropdown { position:relative; }
-    .user-pill { display:flex; align-items:center; gap:.6rem; padding:.3rem .75rem .3rem .35rem; border-radius:50px; border:1.5px solid #dde3ee; background:#fff; cursor:pointer; transition:all .18s; user-select:none; }
-    .user-pill:hover { border-color:#002677; background:#f4f7fb; }
-    .avatar { width:30px; height:30px; background:#002677; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:.72rem; font-weight:800; flex-shrink:0; }
-    .user-name { font-size:.82rem; font-weight:700; color:#1a1a2e; line-height:1.1; }
-    .user-role { font-size:.65rem; color:#5a6478; text-transform:uppercase; letter-spacing:.05em; }
-    .chevron   { font-size:.65rem; color:#5a6478; margin-left:.15rem; }
-    .dropdown-menu { display:none; position:absolute; right:0; top:calc(100% + 8px); background:#fff; border:1px solid #dde3ee; border-radius:12px; box-shadow:0 8px 24px rgba(0,38,119,.12); min-width:170px; padding:.4rem; z-index:200; }
-    .dropdown:hover .dropdown-menu { display:block; }
-    .dropdown-item { display:flex; align-items:center; gap:.5rem; padding:.55rem .75rem; border-radius:8px; color:#1a1a2e; font-size:.875rem; font-weight:500; cursor:pointer; background:none; border:none; width:100%; text-align:left; transition:background .15s; font-family:inherit; }
-    .dropdown-item:hover { background:#f4f7fb; }
-    .dropdown-item.danger { color:#c0392b; }
-    .dropdown-item.danger:hover { background:#fdecea; }
+    aside {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 256px;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* ── Brand ── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: 1.25rem 1.25rem 1rem;
+      text-decoration: none;
+      border-bottom: 1px solid var(--sidebar-bdr);
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,.12);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.01em;
+      display: block;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: .65rem;
+      color: rgba(255,255,255,.5);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    /* ── Nav ── */
+    nav {
+      flex: 1;
+      padding: .75rem .75rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-section {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: rgba(255,255,255,.3);
+      padding: 1rem .5rem .35rem;
+    }
+
+    .nav-section:first-child { padding-top: .5rem; }
+
+    a.nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .58rem .75rem;
+      border-radius: 7px;
+      color: var(--sidebar-text);
+      font-size: .8375rem;
+      font-weight: 500;
+      text-decoration: none !important;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+
+    a.nav-item i {
+      font-size: 1.05rem;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+      opacity: .8;
+    }
+
+    a.nav-item:hover {
+      background: var(--sidebar-hover);
+      color: #fff;
+    }
+
+    a.nav-item:hover i { opacity: 1; }
+
+    a.nav-item.active {
+      background: var(--sidebar-active);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    a.nav-item.active i { opacity: 1; }
+
+    /* ── Divider ── */
+    .nav-divider {
+      height: 1px;
+      background: var(--sidebar-bdr);
+      margin: .75rem 0;
+    }
+
+    /* ── Footer ── */
+    .sidebar-footer {
+      padding: .875rem 1rem;
+      border-top: 1px solid var(--sidebar-bdr);
+      flex-shrink: 0;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .avatar {
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      letter-spacing: -.02em;
+    }
+
+    .user-name {
+      font-size: .8rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: .65rem;
+      color: rgba(255,255,255,.45);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+    }
+
+    .signout {
+      margin-top: .6rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .45rem .75rem;
+      border-radius: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,.45);
+      font-size: .775rem;
+      font-weight: 500;
+      font-family: var(--font);
+      width: 100%;
+      text-align: left;
+      transition: background .15s, color .15s;
+    }
+
+    .signout:hover {
+      background: rgba(220,38,38,.2);
+      color: #fca5a5;
+    }
   `],
   template: `
-    <nav>
-      <div class="nav-inner">
-        <a class="brand" routerLink="/dashboard">
-          <div class="brand-icon"><i class="bi bi-hospital-fill"></i></div>
-          <div>
-            <span class="brand-name">HMS</span>
-            <span class="brand-sub">Health Management</span>
-          </div>
+    <aside>
+      <a class="brand" routerLink="/dashboard">
+        <div class="brand-icon"><i class="bi bi-hospital-fill"></i></div>
+        <div>
+          <span class="brand-name">MedCore HMS</span>
+          <span class="brand-sub">Health Management</span>
+        </div>
+      </a>
+
+      <nav>
+        <span class="nav-section">Overview</span>
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
         </a>
 
-        <ul class="nav-links">
-          <li><a routerLink="/dashboard"     routerLinkActive="active"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
-          <li><a routerLink="/appointments"  routerLinkActive="active"><i class="bi bi-calendar-check"></i>Appointments</a></li>
-          @if (auth.role === 'PATIENT') {
-            <li><a routerLink="/patients" routerLinkActive="active"><i class="bi bi-person-lines-fill"></i>My Profile</a></li>
-            <li><a routerLink="/billing"  routerLinkActive="active"><i class="bi bi-receipt"></i>Billing</a></li>
-          }
-          @if (auth.role === 'PROVIDER' || auth.role === 'ADMIN') {
-            <li><a routerLink="/patients"       routerLinkActive="active"><i class="bi bi-people"></i>Patients</a></li>
-            <li><a routerLink="/prescriptions"  routerLinkActive="active"><i class="bi bi-prescription2"></i>Prescriptions</a></li>
-            <li><a routerLink="/billing"        routerLinkActive="active"><i class="bi bi-receipt"></i>Billing</a></li>
-          }
-          @if (auth.role === 'ADMIN') {
-            <li><a routerLink="/reports" routerLinkActive="active"><i class="bi bi-bar-chart-line"></i>Reports</a></li>
-          }
-        </ul>
+        <span class="nav-section">Clinical</span>
+        <a class="nav-item" routerLink="/appointments" routerLinkActive="active">
+          <i class="bi bi-calendar-check-fill"></i><span>Appointments</span>
+        </a>
 
-        <div class="nav-right">
-          <div class="dropdown">
-            <div class="user-pill">
-              <div class="avatar">{{ initials }}</div>
-              <div>
-                <div class="user-name">{{ auth.currentUser()?.fullName }}</div>
-                <div class="user-role">{{ auth.role }}</div>
-              </div>
-              <i class="bi bi-chevron-down chevron"></i>
-            </div>
-            <div class="dropdown-menu">
-              <button class="dropdown-item danger" (click)="auth.logout()">
-                <i class="bi bi-box-arrow-right"></i> Sign out
-              </button>
-            </div>
+        @if (auth.role === 'PATIENT') {
+          <a class="nav-item" routerLink="/patients" routerLinkActive="active">
+            <i class="bi bi-person-lines-fill"></i><span>My Profile</span>
+          </a>
+          <a class="nav-item" routerLink="/billing" routerLinkActive="active">
+            <i class="bi bi-receipt"></i><span>Billing</span>
+          </a>
+        }
+
+        @if (auth.role === 'PROVIDER' || auth.role === 'ADMIN') {
+          <a class="nav-item" routerLink="/prescriptions" routerLinkActive="active">
+            <i class="bi bi-prescription2"></i><span>Prescriptions</span>
+          </a>
+        }
+
+        @if (auth.role !== 'PATIENT') {
+          <span class="nav-section">Management</span>
+          <a class="nav-item" routerLink="/patients" routerLinkActive="active">
+            <i class="bi bi-people-fill"></i><span>Patients</span>
+          </a>
+          <a class="nav-item" routerLink="/billing" routerLinkActive="active">
+            <i class="bi bi-receipt-cutoff"></i><span>Billing</span>
+          </a>
+        }
+
+        @if (auth.role === 'ADMIN') {
+          <span class="nav-section">Administration</span>
+          <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
+            <i class="bi bi-person-badge-fill"></i><span>User Management</span>
+          </a>
+          <a class="nav-item" routerLink="/reports" routerLinkActive="active">
+            <i class="bi bi-bar-chart-fill"></i><span>Reports</span>
+          </a>
+        }
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <div class="avatar">{{ initials }}</div>
+          <div style="min-width:0;flex:1">
+            <div class="user-name">{{ auth.currentUser()?.fullName }}</div>
+            <div class="user-role">{{ roleLabel }}</div>
           </div>
         </div>
+        <button class="signout" (click)="auth.logout()">
+          <i class="bi bi-box-arrow-left"></i> Sign out
+        </button>
       </div>
-    </nav>
+    </aside>
   `
 })
 export class NavbarComponent {
@@ -86,5 +265,10 @@ export class NavbarComponent {
   get initials(): string {
     return (this.auth.currentUser()?.fullName ?? '')
       .split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  get roleLabel(): string {
+    const map: Record<string, string> = { ADMIN: 'Administrator', PROVIDER: 'Healthcare Provider', PATIENT: 'Patient' };
+    return map[this.auth.role ?? ''] ?? this.auth.role ?? '';
   }
 }

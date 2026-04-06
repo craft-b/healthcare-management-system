@@ -125,7 +125,8 @@ export class AppointmentsComponent implements OnInit {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.submitting = true; this.formError = '';
     const val = this.form.value;
-    this.appointmentService.create({ providerId: Number(val.providerId), appointmentTime: val.appointmentTime, notes: val.notes }).subscribe({
+    const appointmentTime = val.appointmentTime.length === 16 ? val.appointmentTime + ':00' : val.appointmentTime;
+    this.appointmentService.create({ providerId: Number(val.providerId), appointmentTime, notes: val.notes }).subscribe({
       next: apt => { this.appointments.unshift(apt); this.form.reset(); this.showForm = false; this.submitting = false; },
       error: () => { this.formError = 'Failed to schedule appointment.'; this.submitting = false; }
     });

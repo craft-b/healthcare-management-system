@@ -23,4 +23,8 @@ export class PrescriptionService {
   sendToPharmacy(id: number) {
     return this.http.post<PrescriptionDto>(`${this.API}/${id}/send`, null);
   }
+
+  delete(id: number) {
+    return this.http.delete<void>(`${this.API}/${id}`);
+  }
 }

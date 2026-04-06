@@ -46,4 +46,10 @@ public class PrescriptionController {
     public ResponseEntity<PrescriptionDto> send(@PathVariable Long id) {
         return ResponseEntity.ok(prescriptionService.sendToPharmacy(id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        prescriptionService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

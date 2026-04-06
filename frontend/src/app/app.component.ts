@@ -7,11 +7,30 @@ import { AuthService } from './core/services/auth.service';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, NavbarComponent],
+  styles: [`
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      margin-left: 256px;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+  `],
   template: `
     @if (auth.isLoggedIn()) {
-      <app-navbar />
+      <div class="app-layout">
+        <app-navbar />
+        <main class="main-content">
+          <router-outlet />
+        </main>
+      </div>
+    } @else {
+      <router-outlet />
     }
-    <router-outlet />
   `
 })
 export class AppComponent {

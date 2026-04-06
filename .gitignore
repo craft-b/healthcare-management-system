@@ -23,3 +23,6 @@ Thumbs.db
 *.env.local
 application-local.properties
 backend/src/main/resources/application.properties
+
+# ── Build artifacts (populated during mvn package) ────────────────────────────
+backend/src/main/resources/static/

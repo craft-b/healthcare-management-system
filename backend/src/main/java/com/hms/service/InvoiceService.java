@@ -20,14 +20,16 @@ public class InvoiceService {
     private final PatientService patientService;
     private final AppointmentRepository appointmentRepository;
 
+    @Transactional(readOnly = true)
     public List<InvoiceDto> getForPatient(User user) {
         Patient patient = patientService.getByUser(user);
-        return invoiceRepository.findByPatientOrderByIssuedAtDesc(patient)
+        return invoiceRepository.findByPatientWithDetails(patient)
                 .stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<InvoiceDto> getAll() {
-        return invoiceRepository.findAll().stream().map(this::toDto).toList();
+        return invoiceRepository.findAllWithDetails().stream().map(this::toDto).toList();
     }
 
     @Transactional

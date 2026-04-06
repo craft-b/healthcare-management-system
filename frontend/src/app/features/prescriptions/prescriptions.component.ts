@@ -88,7 +88,8 @@ import { PrescriptionDto, PatientDto } from '../../core/models';
                 <div class="rx-card-footer">
                   <button class="btn btn-outline btn-sm" (click)="edit(rx)"><i class="bi bi-pencil"></i>Edit</button>
                   @if (!rx.sentToPharmacy) {
-                    <button class="btn btn-success btn-sm" (click)="send(rx)"><i class="bi bi-send"></i>Send to Pharmacy</button>
+                    <button class="btn btn-success btn-sm" (click)="send(rx)"><i class="bi bi-send"></i>Send</button>
+                    <button class="btn btn-outline-danger btn-sm" (click)="remove(rx)"><i class="bi bi-trash"></i></button>
                   }
                 </div>
               }
@@ -139,5 +140,10 @@ export class PrescriptionsComponent implements OnInit {
   send(rx: PrescriptionDto) {
     if (!confirm(`Send "${rx.medicationName}" to pharmacy for ${rx.patientName}?`)) return;
     this.prescriptionService.sendToPharmacy(rx.id!).subscribe(updated => { const i = this.prescriptions.findIndex(p => p.id === rx.id); if (i !== -1) this.prescriptions[i] = updated; });
+  }
+
+  remove(rx: PrescriptionDto) {
+    if (!confirm(`Delete prescription for "${rx.medicationName}"? This cannot be undone.`)) return;
+    this.prescriptionService.delete(rx.id!).subscribe(() => { this.prescriptions = this.prescriptions.filter(p => p.id !== rx.id); });
   }
 }

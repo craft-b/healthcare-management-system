@@ -29,7 +29,16 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
+        List<Map<String, Object>> users = userRepository.findAll()
+                .stream()
+                .map(u -> Map.<String, Object>of(
+                        "id", u.getId(),
+                        "username", u.getUsername(),
+                        "fullName", u.getFullName(),
+                        "role", u.getRole().name()
+                ))
+                .toList();
+        return ResponseEntity.ok(users);
     }
 }

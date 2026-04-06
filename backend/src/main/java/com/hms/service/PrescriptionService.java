@@ -20,19 +20,22 @@ public class PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PatientService patientService;
 
+    @Transactional(readOnly = true)
     public List<PrescriptionDto> getForPatient(User user) {
         Patient patient = patientService.getByUser(user);
-        return prescriptionRepository.findByPatientOrderByCreatedAtDesc(patient)
+        return prescriptionRepository.findByPatientWithDetails(patient)
                 .stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<PrescriptionDto> getForProvider(User provider) {
-        return prescriptionRepository.findByProviderOrderByCreatedAtDesc(provider)
+        return prescriptionRepository.findByProviderWithDetails(provider)
                 .stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<PrescriptionDto> getAll() {
-        return prescriptionRepository.findAll().stream().map(this::toDto).toList();
+        return prescriptionRepository.findAllWithDetails().stream().map(this::toDto).toList();
     }
 
     @Transactional
@@ -54,6 +57,11 @@ public class PrescriptionService {
         prescription.setSentToPharmacy(true);
         prescription.setSentAt(LocalDateTime.now());
         return toDto(prescriptionRepository.save(prescription));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        prescriptionRepository.deleteById(id);
     }
 
     @Transactional

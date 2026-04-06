@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AppointmentService } from '../../core/services/appointment.service';
 import { InvoiceService } from '../../core/services/invoice.service';
@@ -148,10 +149,21 @@ export class DashboardComponent implements OnInit {
   constructor(public auth: AuthService, private appointmentService: AppointmentService, private invoiceService: InvoiceService, private prescriptionService: PrescriptionService, private patientService: PatientService) {}
 
   ngOnInit() {
-    this.appointmentService.getAll().subscribe(data => this.appointments = data);
-    this.invoiceService.getAll().subscribe(data => this.invoices = data);
-    this.prescriptionService.getAll().subscribe(data => this.prescriptions = data);
-    if (this.auth.role !== 'PATIENT') { this.patientService.getAll().subscribe(data => this.patients = data); }
+    const base$ = {
+      appointments: this.appointmentService.getAll(),
+      invoices: this.invoiceService.getAll(),
+      prescriptions: this.prescriptionService.getAll()
+    };
+    const queries$ = this.auth.role !== 'PATIENT'
+      ? { ...base$, patients: this.patientService.getAll() }
+      : base$;
+
+    forkJoin(queries$).subscribe((data: any) => {
+      this.appointments = data.appointments;
+      this.invoices = data.invoices;
+      this.prescriptions = data.prescriptions;
+      if (data.patients) this.patients = data.patients;
+    });
   }
 
   statusBadge(status: string): string {

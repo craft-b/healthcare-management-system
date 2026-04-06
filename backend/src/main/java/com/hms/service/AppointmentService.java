@@ -19,19 +19,22 @@ public class AppointmentService {
     private final PatientService patientService;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public List<AppointmentDto> getForPatient(User user) {
         Patient patient = patientService.getByUser(user);
-        return appointmentRepository.findByPatientOrderByAppointmentTimeDesc(patient)
+        return appointmentRepository.findByPatientWithDetails(patient)
                 .stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<AppointmentDto> getForProvider(User provider) {
-        return appointmentRepository.findByProviderOrderByAppointmentTimeDesc(provider)
+        return appointmentRepository.findByProviderWithDetails(provider)
                 .stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<AppointmentDto> getAll() {
-        return appointmentRepository.findAll().stream().map(this::toDto).toList();
+        return appointmentRepository.findAllWithDetails().stream().map(this::toDto).toList();
     }
 
     @Transactional
