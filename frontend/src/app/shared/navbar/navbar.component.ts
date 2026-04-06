@@ -10,21 +10,22 @@ import { AuthService } from '../../core/services/auth.service';
     aside {
       position: fixed;
       top: 0; left: 0; bottom: 0;
-      width: 256px;
+      width: 260px;
       background: var(--sidebar-bg);
       display: flex;
       flex-direction: column;
       z-index: 200;
       overflow-y: auto;
       overflow-x: hidden;
+      border-right: 1px solid rgba(255,255,255,.04);
     }
 
     /* ── Brand ── */
     .brand {
       display: flex;
       align-items: center;
-      gap: .75rem;
-      padding: 1.25rem 1.25rem 1rem;
+      gap: .85rem;
+      padding: 1.4rem 1.25rem 1.1rem;
       text-decoration: none;
       border-bottom: 1px solid var(--sidebar-bdr);
       flex-shrink: 0;
@@ -32,78 +33,81 @@ import { AuthService } from '../../core/services/auth.service';
 
     .brand-icon {
       width: 38px; height: 38px;
-      background: rgba(255,255,255,.12);
-      border-radius: 8px;
+      background: var(--sidebar-accent);
+      border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 1.15rem;
+      color: #fff; font-size: 1.1rem;
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(59,114,196,.4);
     }
 
     .brand-name {
-      font-size: .95rem;
+      font-size: .9375rem;
       font-weight: 800;
       color: #fff;
-      letter-spacing: -.01em;
+      letter-spacing: -.02em;
       display: block;
       line-height: 1.2;
     }
 
     .brand-sub {
-      font-size: .65rem;
-      color: rgba(255,255,255,.5);
+      font-size: .62rem;
+      color: rgba(255,255,255,.38);
       font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: .07em;
+      letter-spacing: .1em;
     }
 
     /* ── Nav ── */
     nav {
       flex: 1;
-      padding: .75rem .75rem 0;
+      padding: 1rem .875rem 0;
       display: flex;
       flex-direction: column;
-      gap: 2px;
     }
 
     .nav-section {
-      font-size: .65rem;
+      font-size: .62rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: .1em;
-      color: rgba(255,255,255,.3);
-      padding: 1rem .5rem .35rem;
+      letter-spacing: .12em;
+      color: rgba(255,255,255,.25);
+      padding: 1.1rem .5rem .4rem;
     }
 
-    .nav-section:first-child { padding-top: .5rem; }
+    .nav-section:first-child { padding-top: .25rem; }
 
     a.nav-item {
       display: flex;
       align-items: center;
-      gap: .75rem;
-      padding: .58rem .75rem;
-      border-radius: 7px;
+      gap: .8rem;
+      padding: .6rem .75rem;
+      border-radius: 8px;
       color: var(--sidebar-text);
       font-size: .8375rem;
       font-weight: 500;
       text-decoration: none !important;
-      transition: background .15s, color .15s;
-      white-space: nowrap;
+      transition: background .14s, color .14s;
+      margin-bottom: 1px;
     }
 
-    a.nav-item i {
-      font-size: 1.05rem;
-      width: 20px;
-      text-align: center;
+    a.nav-item .nav-icon {
+      width: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
       flex-shrink: 0;
-      opacity: .8;
+      opacity: .7;
+      transition: opacity .14s;
     }
 
     a.nav-item:hover {
       background: var(--sidebar-hover);
-      color: #fff;
+      color: rgba(255,255,255,.9);
     }
 
-    a.nav-item:hover i { opacity: 1; }
+    a.nav-item:hover .nav-icon { opacity: 1; }
 
     a.nav-item.active {
       background: var(--sidebar-active);
@@ -111,18 +115,14 @@ import { AuthService } from '../../core/services/auth.service';
       font-weight: 600;
     }
 
-    a.nav-item.active i { opacity: 1; }
-
-    /* ── Divider ── */
-    .nav-divider {
-      height: 1px;
-      background: var(--sidebar-bdr);
-      margin: .75rem 0;
+    a.nav-item.active .nav-icon {
+      opacity: 1;
+      color: rgba(147,197,253,1);
     }
 
-    /* ── Footer ── */
+    /* ── User footer ── */
     .sidebar-footer {
-      padding: .875rem 1rem;
+      padding: 1rem 1.25rem;
       border-top: 1px solid var(--sidebar-bdr);
       flex-shrink: 0;
     }
@@ -130,12 +130,12 @@ import { AuthService } from '../../core/services/auth.service';
     .user-row {
       display: flex;
       align-items: center;
-      gap: .75rem;
+      gap: .8rem;
     }
 
     .avatar {
-      width: 34px; height: 34px;
-      background: rgba(255,255,255,.15);
+      width: 36px; height: 36px;
+      background: var(--sidebar-accent);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       color: #fff;
@@ -145,45 +145,47 @@ import { AuthService } from '../../core/services/auth.service';
       letter-spacing: -.02em;
     }
 
+    .user-info { min-width: 0; flex: 1; }
+
     .user-name {
-      font-size: .8rem;
+      font-size: .8125rem;
       font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
+      color: rgba(255,255,255,.9);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 1.3;
     }
 
     .user-role {
       font-size: .65rem;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,.38);
       text-transform: uppercase;
-      letter-spacing: .06em;
+      letter-spacing: .07em;
       font-weight: 600;
     }
 
     .signout {
-      margin-top: .6rem;
       display: flex;
       align-items: center;
       gap: .5rem;
       padding: .45rem .75rem;
-      border-radius: 6px;
+      border-radius: 7px;
       background: none;
       border: none;
       cursor: pointer;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,.35);
       font-size: .775rem;
       font-weight: 500;
       font-family: var(--font);
       width: 100%;
+      margin-top: .6rem;
       text-align: left;
-      transition: background .15s, color .15s;
+      transition: background .14s, color .14s;
     }
 
     .signout:hover {
-      background: rgba(220,38,38,.2);
+      background: rgba(220,38,38,.18);
       color: #fca5a5;
     }
   `],
@@ -200,46 +202,46 @@ import { AuthService } from '../../core/services/auth.service';
       <nav>
         <span class="nav-section">Overview</span>
         <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-          <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+          <span class="nav-icon"><i class="bi bi-grid-fill"></i></span>Dashboard
         </a>
 
         <span class="nav-section">Clinical</span>
         <a class="nav-item" routerLink="/appointments" routerLinkActive="active">
-          <i class="bi bi-calendar-check-fill"></i><span>Appointments</span>
+          <span class="nav-icon"><i class="bi bi-calendar-check-fill"></i></span>Appointments
         </a>
 
         @if (auth.role === 'PATIENT') {
           <a class="nav-item" routerLink="/patients" routerLinkActive="active">
-            <i class="bi bi-person-lines-fill"></i><span>My Profile</span>
+            <span class="nav-icon"><i class="bi bi-person-lines-fill"></i></span>My Profile
           </a>
           <a class="nav-item" routerLink="/billing" routerLinkActive="active">
-            <i class="bi bi-receipt"></i><span>Billing</span>
+            <span class="nav-icon"><i class="bi bi-receipt"></i></span>Billing
           </a>
         }
 
         @if (auth.role === 'PROVIDER' || auth.role === 'ADMIN') {
           <a class="nav-item" routerLink="/prescriptions" routerLinkActive="active">
-            <i class="bi bi-prescription2"></i><span>Prescriptions</span>
+            <span class="nav-icon"><i class="bi bi-prescription2"></i></span>Prescriptions
           </a>
         }
 
         @if (auth.role !== 'PATIENT') {
           <span class="nav-section">Management</span>
           <a class="nav-item" routerLink="/patients" routerLinkActive="active">
-            <i class="bi bi-people-fill"></i><span>Patients</span>
+            <span class="nav-icon"><i class="bi bi-people-fill"></i></span>Patients
           </a>
           <a class="nav-item" routerLink="/billing" routerLinkActive="active">
-            <i class="bi bi-receipt-cutoff"></i><span>Billing</span>
+            <span class="nav-icon"><i class="bi bi-receipt-cutoff"></i></span>Billing
           </a>
         }
 
         @if (auth.role === 'ADMIN') {
           <span class="nav-section">Administration</span>
           <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
-            <i class="bi bi-person-badge-fill"></i><span>User Management</span>
+            <span class="nav-icon"><i class="bi bi-person-badge-fill"></i></span>User Management
           </a>
           <a class="nav-item" routerLink="/reports" routerLinkActive="active">
-            <i class="bi bi-bar-chart-fill"></i><span>Reports</span>
+            <span class="nav-icon"><i class="bi bi-bar-chart-fill"></i></span>Reports
           </a>
         }
       </nav>
@@ -247,13 +249,13 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="sidebar-footer">
         <div class="user-row">
           <div class="avatar">{{ initials }}</div>
-          <div style="min-width:0;flex:1">
+          <div class="user-info">
             <div class="user-name">{{ auth.currentUser()?.fullName }}</div>
             <div class="user-role">{{ roleLabel }}</div>
           </div>
         </div>
         <button class="signout" (click)="auth.logout()">
-          <i class="bi bi-box-arrow-left"></i> Sign out
+          <i class="bi bi-box-arrow-left"></i>Sign out
         </button>
       </div>
     </aside>
@@ -268,7 +270,11 @@ export class NavbarComponent {
   }
 
   get roleLabel(): string {
-    const map: Record<string, string> = { ADMIN: 'Administrator', PROVIDER: 'Healthcare Provider', PATIENT: 'Patient' };
-    return map[this.auth.role ?? ''] ?? this.auth.role ?? '';
+    const map: Record<string, string> = {
+      ADMIN: 'Administrator',
+      PROVIDER: 'Healthcare Provider',
+      PATIENT: 'Patient'
+    };
+    return map[this.auth.role ?? ''] ?? '';
   }
 }
