@@ -52,7 +52,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/health").permitAll()
-                .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/*.ico", "/assets/**", "/**.js", "/**.css").permitAll()
+                .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/*.ico", "/assets/**", "/fonts/**", "/**.js", "/**.css").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/patients/**").hasAnyRole("PATIENT", "PROVIDER", "ADMIN")
                 .requestMatchers("/api/prescriptions/**").hasAnyRole("PROVIDER", "ADMIN", "PATIENT")
